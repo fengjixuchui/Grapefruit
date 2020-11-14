@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <dl>
+    <dl @click.capture="onSelectText">
       <dt>Container</dt><dd>{{ info.home }}</dd>
       <dt>Temporary Directory</dt><dd>{{ info.tmp }}</dd>
       <dt>Installation</dt><dd>{{ info.bundle }}</dd>
@@ -53,8 +53,19 @@ export default class Info extends Base {
     this.info = await this.$rpc.info.info()
     const data = await this.$rpc.info.icon() as ArrayBuffer
     if (!data.byteLength) return // todo: placeholder
-    const blob = new Blob([data])
+    const blob = new Blob([data], { type: 'image/png' })
     this.icon = URL.createObjectURL(blob)
+  }
+
+  onSelectText(e: MouseEvent) {
+    const target = e.target as HTMLElement
+    if (target.tagName.toLowerCase() !== 'dd') return
+    const selection = getSelection()
+    if (!selection) return
+    const range = document.createRange()
+    range.selectNodeContents(target)
+    selection.removeAllRanges()
+    selection.addRange(range)
   }
 }
 </script>
