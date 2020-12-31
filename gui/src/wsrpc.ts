@@ -62,7 +62,7 @@ class Lazy {
           if (!ok) {
             reject(new Error('Request timed out'))
           }
-        }, 5000)
+        }, 10000)
       })
     })
   }
@@ -114,7 +114,7 @@ class WS {
   }
 
   send(event: string, ...args: any[]): Promise<any> {
-    return new Promise((resolve) => this.socket.emit(event, args, resolve))
+    return new Promise((resolve) => this.socket.emit(event, ...args, resolve))
   }
 
   once(event: string, cb: Function) {

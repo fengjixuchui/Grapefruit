@@ -6,7 +6,7 @@
     "@types/koa-bodyparser": "^4.3.0",
     "@types/koa-router": "^7.4.0",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^13.13.15",
+    "@types/node": "^13.13.36",
     "@types/plist": "^3.0.2",
     "@types/socket.io": "^2.1.4",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
@@ -23,7 +23,7 @@
     "typescript": "^3.8.3"
   },
   "name": "grapefruit-server",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Runtime app instruments for iOS",
   "main": "dist/app.js",
   "directories": {
@@ -31,7 +31,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@types/frida-gum": "^15.2.0",
+    "@types/frida-gum": "^16.2.0",
     "bplist-creator": "0.0.8",
     "bplist-parser": "^0.2.0",
     "commander": "^6.0.0",
@@ -44,14 +44,10 @@
     "koa-send": "^5.0.0",
     "plist": "^3.0.1",
     "reflect-metadata": "^0.1.13",
-    "socket.io": "^2.3.0",
-    "sqlite3": "^5.0.0",
-    "typeorm": "^0.2.28"
+    "socket.io": "^2.3.0"
   },
   "scripts": {
-    "migrate:gen": "npx ts-node scripts/migrate generate -n",
-    "migrate": "npx ts-node scripts/migrate ",
-    "typeorm": "npx ts-node node_modules/typeorm/cli.js",
+    "migrate": "npx ts-node scripts/migrate",
     "test": "mocha --expose-gc -r ts-node/register tests/**/*.ts",
     "test2": "mocha --expose-gc -r ts-node/register",
     "build": "tsc",

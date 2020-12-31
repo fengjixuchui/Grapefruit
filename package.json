@@ -1,12 +1,12 @@
 {
   "name": "grapefruit",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Runtime Application Instruments for iOS",
   "main": "index.js",
   "dependencies": {},
   "scripts": {
-    "postinstall": "node scripts/install.js",
-    "start": "node scripts/dev.js",
+    "installdev": "node scripts/install.js",
+    "dev": "node scripts/dev.js",
     "test": "node scripts/test.js"
   },
   "repository": {
@@ -19,7 +19,5 @@
     "url": "https://github.com/ChiChou/Grapefruit/issues"
   },
   "homepage": "https://github.com/ChiChou/Grapefruit#readme",
-  "devDependencies": {
-    "cross-env": "^7.0.2"
-  }
+  "devDependencies": {}
 }

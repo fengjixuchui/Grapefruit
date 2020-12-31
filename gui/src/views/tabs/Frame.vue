@@ -36,6 +36,9 @@ import TextPreview from './TextPreview.vue'
 import SQLitePreview from './SQLitePreview.vue'
 import UnknownPreview from './UnknownPreview.vue'
 
+import CodeRunner from './CodeRunner.vue'
+import WebViewDetail from './WebViewDetail.vue'
+
 import Loading from '../../components/Loading.vue'
 
 import { Component, Vue, Prop } from 'vue-property-decorator'
@@ -63,7 +66,10 @@ import { Container } from 'golden-layout'
     ImagePreview,
     TextPreview,
     SQLitePreview,
-    UnknownPreview
+    UnknownPreview,
+
+    CodeRunner,
+    WebViewDetail
   }
 })
 export default class Frame extends Vue {

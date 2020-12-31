@@ -12,6 +12,10 @@
           <b-tag>{{ props.row.clazz | trim('kSecClass') }}</b-tag>
         </b-table-column>
 
+        <b-table-column field="label" label="Label" sortable>
+          <span class="break-all">{{ props.row.label }}</span>
+        </b-table-column>
+
         <b-table-column field="account" label="Account" sortable>
           <span class="break-all">{{ props.row.account }}</span>
         </b-table-column>
@@ -56,7 +60,6 @@ import Base from './Base.vue'
 
 const keys = [
   'service',
-  'label',
   'creation',
   'modification',
   'description',
@@ -73,10 +76,10 @@ const keys = [
   'generic'
 ]
 
-const columns: { [key: string]: string } = {}
-keys.forEach(key => {
-  columns[key] = key.replace(/([a-z](?=[A-Z]))/g, '$1 ')
-})
+const columns: {[key: string]: string} = {}
+for (const key of keys) {
+  columns[key] = key.replace(/[A-Z]/g, m => ' ' + m).replace(/^[a-z]/, c => c.toUpperCase())
+}
 
 @Component({
   filters: {

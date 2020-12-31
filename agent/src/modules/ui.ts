@@ -1,12 +1,6 @@
 import { performOnMainThread } from '../lib/dispatch'
-import {
-  UIGraphicsBeginImageContextWithOptions,
-  UIGraphicsGetImageFromCurrentImageContext,
-  UIGraphicsEndImageContext,
-  UIImagePNGRepresentation
-} from '../lib/UIKit'
 
-const { UIWindow, UIView, UIColor } = ObjC.classes
+import UIKit from '../api/UIKit'
 
 type Point = [number, number];
 type Size = [number, number];
@@ -27,6 +21,7 @@ interface Node {
 }
 
 export function dump(includingPreview: false): Promise<Node | null> {
+  const { UIWindow } = ObjC.classes
   const win = UIWindow.keyWindow()
   const recursive = (view: ObjC.Object): Node | null => {
     if (!view) return null
@@ -51,10 +46,10 @@ export function dump(includingPreview: false): Promise<Node | null> {
       // preview
       const bounds = view.bounds()
       const size = bounds[1]
-      UIGraphicsBeginImageContextWithOptions(size, 0, 0)
-      const image = UIGraphicsGetImageFromCurrentImageContext();
-      UIGraphicsEndImageContext()
-      const png = UIImagePNGRepresentation(image) as NativePointer
+      UIKit.UIGraphicsBeginImageContextWithOptions(size, 0, 0)
+      const image = UIKit.UIGraphicsGetImageFromCurrentImageContext();
+      UIKit.UIGraphicsEndImageContext()
+      const png = UIKit.UIImagePNGRepresentation(image) as NativePointer
       if (!png.isNull()) {
         const data = new ObjC.Object(png)
         preview = data.base64EncodedStringWithOptions_(0).toString()
@@ -84,6 +79,7 @@ let overlay: ObjC.Object
 // NSMakePoint
 // NSMakeSize
 export function highlight(frame: Frame): void {
+  const { UIWindow, UIView, UIColor } = ObjC.classes
   if (!frame) return
 
   const win = UIWindow.keyWindow()

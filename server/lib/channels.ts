@@ -105,7 +105,6 @@ export default class Channels {
       const rpc = proxy(agent)
 
       socket.on('disconnect', async () => {
-        console.info('disconnect')
         try {
           await agent.post({ type: 'dispose' })
           await session.detach()
@@ -123,7 +122,7 @@ export default class Channels {
           const result = await rpc(method, ...args)
           ack({ status: 'ok', data: result })
         } catch(err) {
-          ack({ status: 'error', error: `${err}` })
+          ack({ status: 'error', error: `${err.message}` })
           socket.emit('log', 'error', `RPC Error: \n${err.stack}`)
           console.error('Uncaught RPC error', err.stack || err)
           console.error('method:', method, 'args:', args)

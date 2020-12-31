@@ -11,7 +11,10 @@
           <hsc-menu-separator />
           <hsc-menu-item label="Kill" @click="kill" />
         </hsc-menu-bar-item>
-        <hsc-menu-bar-item label="Snippet">
+        <hsc-menu-bar-item label="Layout">
+          <hsc-menu-item label="Reset" @click="reset"/>
+        </hsc-menu-bar-item>
+        <!-- <hsc-menu-bar-item label="Snippet">
           <hsc-menu-item label="New REPL" />
           <hsc-menu-separator />
           <hsc-menu-item label="Open Snippet" />
@@ -23,12 +26,12 @@
         <hsc-menu-bar-item label="Log">
           <hsc-menu-item label="Export" />
           <hsc-menu-item label="Search" />
-        </hsc-menu-bar-item>
+        </hsc-menu-bar-item> -->
         <hsc-menu-bar-item label="Help">
           <hsc-menu-item label="About" @click="isAboutDialogActive = true" />
           <hsc-menu-separator />
           <hsc-menu-item label="GitHub Repo" @click="external('https://github.com/chichou/grapefruit')" />
-          <hsc-menu-item label="Documentation" @click="external('https://github.com/chichou/grapefruit')" />
+          <hsc-menu-item label="Support Me on Patreon" @click="external('https://www.patreon.com/codecolorist')" />
           <!-- <hsc-menu-separator />
         <hsc-menu-item label="Check NPM Updates" @click="update()" /> -->
         </hsc-menu-bar-item>
@@ -103,6 +106,11 @@ export default class MenuBar extends Vue {
   kill() {
     this.$ws.send('kill')
     this.detach()
+  }
+
+  reset() {
+    localStorage.removeItem('layout-state')
+    location.reload()
   }
 
   detach() {

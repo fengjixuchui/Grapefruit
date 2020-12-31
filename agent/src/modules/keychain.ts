@@ -1,15 +1,11 @@
+import CF from '../api/CoreFoundation'
+import Security from '../api/Security'
+
+import { CFSTR } from '../lib/foundation'
 import { valueOf } from '../lib/dict'
 
-const { NSMutableDictionary } = ObjC.classes
-
-function api(symbol: string, ret: string, args: string[]) {
-  return new NativeFunction(Module.findExportByName('Security', symbol)!, ret, args)
-}
-
-const Security = {
-  SecItemCopyMatching: api('SecItemCopyMatching', 'pointer', ['pointer', 'pointer']),
-  SecItemDelete: api('SecItemDelete', 'pointer', ['pointer']),
-  SecAccessControlGetConstraints: api('SecAccessControlGetConstraints', 'pointer', ['pointer']),
+for (const mod of ['Foundation', 'CoreFoundation', 'Security']) {
+  Module.ensureInitialized(mod)
 }
 
 const constants = [
@@ -56,7 +52,7 @@ const constants = [
   'kSecUseAuthenticationUI',
 ]
 
-const lookup: {[val: string]: string } = {}
+const lookup: { [val: string]: string } = {}
 const C: { [key: string]: NativePointer } = {}
 for (let symbol of constants) {
   const p = Module.findExportByName('Security', symbol)
@@ -66,14 +62,12 @@ for (let symbol of constants) {
   }
   const val = p.readPointer()
   C[symbol] = val
-  lookup[val.toString()] = symbol
+  const literal = CFSTR(val)
+  if (!literal) throw new Error(`Unable to resolve string constant ${symbol}`)
+  lookup[literal] = symbol
 }
 
-Module.ensureInitialized('Foundation')
-Module.ensureInitialized('CoreFoundation')
-
-const constantLookup = (val: NativePointer) => lookup[val.toString()]
-const CFRelease = new NativeFunction(Module.findExportByName('CoreFoundation', 'CFRelease')!, 'void', ['pointer'])
+const constantLookup = (val: string) => lookup[val]
 
 const kSecClasses = [
   C.kSecClassKey,
@@ -94,24 +88,21 @@ function dumpACL(entry: ObjC.Object): string {
     return ''
 
   const { NSDictionary, NSData } = ObjC.classes
-  const CFGetTypeID = new NativeFunction(Module.findExportByName('CoreFoundation', 'CFGetTypeID')!, 'pointer', ['pointer'])
-  const CFBooleanGetTypeID = new NativeFunction(Module.findExportByName('CoreFoundation', 'CFBooleanGetTypeID')!, 'pointer', [])
-
   class Visitor {
-    constructor(public node: ObjC.Object) {}
+    constructor(public node: ObjC.Object) { }
 
     visit(node: ObjC.Object): string {
       if (node.isKindOfClass_(NSDictionary))
         return [...this.expand(node)].join(';')
-      if ((CFGetTypeID(node) as NativePointer).equals(CFBooleanGetTypeID() as NativePointer))
-      // if (node.isKindOfClass_(NSNumber))
+      if ((CF.CFGetTypeID(node) as NativePointer).equals(CF.CFBooleanGetTypeID() as NativePointer))
+        // if (node.isKindOfClass_(NSNumber))
         return node.boolValue().toString()
       if (node.isKindOfClass_(NSData))
         return '<>'
       return node.toString()
     }
 
-    *expand(node: ObjC.Object) {      
+    *expand(node: ObjC.Object) {
       const enumerator = node.keyEnumerator()
       let key
       while ((key = enumerator.nextObject())) {
@@ -119,7 +110,7 @@ function dumpACL(entry: ObjC.Object): string {
         yield `${key}(${this.visit(value)})`
       }
     }
-    
+
     toString() {
       return 'ak;' + this.visit(this.node)
     }
@@ -148,7 +139,7 @@ export function list(withfaceId = false): object[] {
   const kCFBooleanTrue = ObjC.classes.__NSCFBoolean.numberWithBool_(true)
   const result: object[] = []
 
-  const query = NSMutableDictionary.alloc().init()
+  const query = ObjC.classes.NSMutableDictionary.alloc().init()
   query.setObject_forKey_(kCFBooleanTrue, C.kSecReturnAttributes)
   query.setObject_forKey_(kCFBooleanTrue, C.kSecReturnData)
   query.setObject_forKey_(kCFBooleanTrue, C.kSecReturnRef)
@@ -179,6 +170,7 @@ export function list(withfaceId = false): object[] {
   }
 
   for (const clazz of kSecClasses) {
+    const className = CFSTR(clazz)
     query.setObject_forKey_(clazz, C.kSecClass)
 
     const p = Memory.alloc(Process.pointerSize)
@@ -190,7 +182,7 @@ export function list(withfaceId = false): object[] {
     for (let i = 0, size = arr.count(); i < size; i++) {
       const item = arr.objectAtIndex_(i)
       const readable: { [key: string]: any } = {
-        clazz: constantLookup(clazz),
+        clazz: constantLookup(className!),
         accessControl: dumpACL(item),
         accessibleAttribute: constantLookup(item.objectForKey_(C.kSecAttrAccessible))
       }
@@ -203,12 +195,11 @@ export function list(withfaceId = false): object[] {
     }
   }
 
-  query.release()
   return result
 }
 
 export function clear() {
-  const query = NSMutableDictionary.alloc().init()
+  const query = ObjC.classes.NSMutableDictionary.alloc().init()
   for (const clazz of kSecClasses) {
     query.setObject_forKey_(clazz, C.kSecClass)
   }
